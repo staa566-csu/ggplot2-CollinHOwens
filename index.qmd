@@ -1,0 +1,274 @@
+---
+title: "GGplot2"
+author: "Collin Owens"
+format: html
+editor: visual
+---
+
+#Package loading To start off we need to use these 3 packages to help clean the data. Lubridate is to convert UNIX time to actual dates, dplyr is used to help separate data for making better graphs, and ggplot2 for the graphs themselves.
+
+```{r}
+library(lubridate)
+library(dplyr)
+library(ggplot2)
+```
+
+#Reading the data and cleaning it up. 
+
+The data I have downloaded is from a set that gets updated daily. I will probably have updated this multiple times before the project is turned in, however the steps taken here should all be the same because I do not clean any outliers in this block of code.
+
+```{r}
+LostArkData <- read.csv("D:\\GradSchool\\STA 566\\Data\\NAwest Mkt sept 12.csv")
+
+attach(LostArkData)
+length(LostArkData$id)
+
+#converting nonsensical time into real dates and replacing the old ones with a real date.
+Tconvert <- timestamp/1000
+Newtime <- as_date(as_datetime(Tconvert))
+LostArkData$timestamp <- Newtime
+
+#Removing any price=0 because the minimum price will always be 1
+LostArkData$open[LostArkData$open ==0] <- NA
+LostArkData$close[LostArkData$close ==0] <- NA
+LostArkData$high[LostArkData$high ==0] <- NA
+LostArkData$low[LostArkData$low ==0] <- NA
+LostArkData <- LostArkData[complete.cases(LostArkData), ]
+
+#checking new length, looks like we have removed 4 observations.
+length(LostArkData$id)
+
+#renaming first 2 columns
+names(LostArkData)[1] <- "Item"
+names(LostArkData)[2] <- "Date"
+```
+
+#Inspecting data
+
+This is the first step where I look for any outliers and remove them. I do play this game daily so I am familiar with how the prices should act on certain items so I am comfortable with removing the observations that are clearly out of the ordinary. These observations could be out of the ordinary due to items being sold out, the game coming back up after a maintenance, or other possibilities.
+
+I also take the step to check the items again just incase the removals did not go through.
+
+```{r}
+#Grouping up and looking at these statistics
+LostArkData %>% group_by(Item) %>% summarize(mean(open))
+LostArkData %>% group_by(Item) %>% summarize(mean(close))
+
+LostArkData %>% group_by(Item) %>% summarize(min(open))
+LostArkData %>% group_by(Item) %>% summarize(min(close))
+
+LostArkData %>% group_by(Item) %>% summarize(max(open))
+LostArkData %>% group_by(Item) %>% summarize(max(close))
+
+#After checking The summary statistics for both close and open, we might have some strange observations.
+#Adding a row to create a unique identification number.
+LostArkData$id <- 1:length(LostArkData$close)
+length(LostArkData$id)
+
+#The problem observations have been found.
+#22941, 4866, 27433, 27432.
+#I would like to look at each group, but that must be done later
+
+#removing problem observations
+LostArkData <- LostArkData[ !(LostArkData$id %in% c(22941, 4866, 27433, 27432)), ]
+length(LostArkData$id)
+
+LostArkData %>% group_by(Item) %>% summarize(max(open))
+LostArkData %>% group_by(Item) %>% summarize(max(close))
+
+LostArkData %>% group_by(Item) %>% summarize(mean(open))
+LostArkData %>% group_by(Item) %>% summarize(mean(close))
+```
+
+#First graph 
+
+This is the first graph of our data. The range of the prices is relatively large because we have some prices at 1 and some in the hundreds so it will be best to split the items up into groups that are of similar price, or similar use in the game.
+
+```{r}
+LAM <- ggplot(data = LostArkData, mapping = aes(x = Date, y = close, color = Item)) + geom_point()
+LAM
+```
+
+#Grouping the items 
+
+This section will put the items into groups similar to each other.
+
+The groups are separated into these groups for these reasons:
+  
+  LAGHLD is a dataset for the main resource for leveling your character up called Great Honor Leapstones (GHL). All armor pieces and weapons need to use this for an attempt to level your character up. These are used in unison with the next data set. This is separated because of the price of the items. They go for a higher price naturally because of the method to obtain them. The method to obtain the sell-able versions of GHLs is doing 2 daily bosses. The higher the difficulty of the boss you get more GHLs, however you need to be a higher level to attempt these.
+
+LAHoneD is a dataset for 3 materials directly related to leveling your character up.
+
+With the Great Honor Leapstones above you use Oreha material for an attempt to level any piece of armor. The method to obtain this material is you can catch fish in the game, hunt animals, or dig up items in the ground. The price does not fluctuate much because bots can perform these tasks very easily and sell them.
+
+Crystallized Guardian stones and Crystallized Destruction stones are the last 2 items needed to attempt to level your character up. These are both obtained from Daily bosses (small amount) and Dungeons (main source.) These are also very easily obtainable because bots can do the dungeons with no problems. These prices should be stable.
+
+LARateupD is a dataset for items that increase the probability of leveling your armor pieces and weapons. The names of these pieces are Solar blessing, Solar grace, and Solar protection. I personally believe there are 3 separate items to fuel corporate greed but for the sell-able versions of these items you obtain them for free. These prices are not as stable as the ones before because you can only obtain these from a special event that occurs 3-4 times a week. You can also only do this event 1 time in that day and you go around and kill easy bosses. Bots would not be able to do this as easily and these items are not as important for leveling your character because they are not needed while only increasing your chance to succeed by 5%.
+
+LAShardsD is a dataset for "experience" for your armor pieces. These items are called Honor Shards and they come in 3 sizes: small, medium, and large. You normally get these shards through the dungeons mentioned in LAHoneD. Those shards are not sell-able however, but you obtain these shards the same way as you obtain the LARateupD materials. Due to that, these will have similar difficulty to obtain so bots cannot exploit this.
+
+An overall summary of this passage is Oreha material, Destruction stones, and Guardian stones will be much cheaper because of the ease of obtaining them and bots.
+
+Great Honor leapstones will be slightly harder to get because it involves killing a boss twice a day.
+
+Solar blessing, grace, and protection along with the Honor shard pouches are harder to obtain and are obtained less frequently than the others so these prices will be higher.
+
+```{r}
+#Separating the items into similar groups to read the graph easier.
+
+#LAGHLD is a data set for Great Honor Leapstones
+LAGHLD <- LostArkData %>% filter(LostArkData$Item %in% c("great-honor-leapstone-2"))
+
+#LAHoneD is a data set for Oreha, T3 Destruction, T3 Guardians
+LAHoneD <- LostArkData %>% filter(LostArkData$Item %in% c("crystallized-destruction-stone-0","crystallized-guardian-stone-0","basic-oreha-fusion-material-2"))
+
+#LARateupD is a data set for rate up materials 
+LARateupD <- LostArkData %>% filter(LostArkData$Item %in% c("solar-blessing-2","solar-grace-1","solar-protection-3"))
+
+#LAShardsD is a data set for the shard packs
+LAShardsD <- LostArkData %>% filter(LostArkData$Item %in% c("honor-shard-pouch-l-3","honor-shard-pouch-m-2","honor-shard-pouch-s-1"))
+```
+
+#Separate graphs 
+
+These graphs are based on the separate data for easier readability. Improvements will be made on these graphs later but this is great because now we will be able to see the data. We can also see any other strange observations, mostly the low prices, with these graphs.
+
+```{r}
+LAGHLG <- ggplot(data = LAGHLD, mapping = aes(x = Date, y = close, color = Item)) + geom_point()
+LAGHLG
+
+LAHoneG <- ggplot(data = LAHoneD, mapping = aes(x = Date, y = close, color = Item)) + geom_point()
+LAHoneG
+
+LARateupG <- ggplot(data = LARateupD, mapping = aes(x = Date, y = close, color = Item)) + geom_point()
+LARateupG
+
+LAShardsG <- ggplot(data = LAShardsD, mapping = aes(x = Date, y = close, color = Item)) + geom_point()
+LAShardsG
+```
+
+#Important dates 
+
+With these graphs peaks and valleys it would be important to look at dates that could cause these spikes and drops. One example could be sometime in july the prices of Great Honor Leapstones drops and continues to drop. These are dates after the dataset was created to help try and understand what could attribute to the behavior of these prices. The explanations of these events and how they could have affected prices will be explained below the graph.
+
+A: 4/25 express mission announced for leveling characters. https://forums.playlostark.com/t/update-to-the-express-mission-event/349957 B: 4/28 express mission applied https://forums.playlostark.com/t/lost-ark-weekly-update-428-12-am-pt-7-am-utc-9-am-cest/351443
+
+C: 5/6 May update announced https://www.playlostark.com/en-us/news/articles/may-2022-update-reveal D: 5/19 May update released https://www.playlostark.com/en-us/news/articles/may-2022-release-notes
+
+E: 6/1 June/July update announced (new character announced too) https://www.playlostark.com/en-us/news/articles/june-and-july-2022-roadmap
+
+:   6/1 Anti bot measures for dungeons https://forums.playlostark.com/t/lost-ark-weekly-update-june-2nd-12-am-pt-7-am-utc-9-am-cest/396600
+
+F: 6/22 June update delayed https://forums.playlostark.com/t/regarding-the-june-update/417483 G: 6/24 A bit more anti bot measures https://forums.playlostark.com/t/an-update-to-fraud-prevention-in-lost-ark/419449
+
+H: 6/30 June update applied https://www.playlostark.com/en-us/news/articles/wrath-of-the-covetous-legion-release-notes
+
+I: 7/12 hyper express + new class confirmation date https://www.playlostark.com/en-gb/news/articles/arcanist-academy J: 7/19 Release of hyper express and arcana https://www.playlostark.com/en-us/news/articles/spells-in-spades-release-notes
+
+K: 7/26 power passes disabled https://forums.playlostark.com/t/powerpasses-temporarily-disabled/439652
+
+L: 7/29 August September roadmap announced https://www.playlostark.com/en-us/news/articles/august-september-2022-roadmap
+
+M: 8/15 Pet ranch and Powerpassed enabled https://forums.playlostark.com/t/update-to-disabled-powerpasses/449952
+
+N: 9/7 almost 24 hours of downtime https://twitter.com/playlostark/status/1567522574292189185
+
+#Lines on the graph. 
+Adding these dates as a line in the graph would be great because we would have a visual reference of these events. I will apply these first to the GHL graph then the others.
+
+Blue is going to be associated with announcements, Green when the announcement is actually applied in game, and black will be for negative events that could potentially affect prices such as bot waves, or massive errors in the game.
+
+One important thing to note is for the dates of 5/19(D) and 6/30(H) is that these new bosses give a lot of gold to characters in the game. Your account can fight this boss with multiple characters giving yourself plenty of gold and also introducing that gold to the market.
+
+```{r fig.width= 14}
+#GHL
+LAGHLGT <- 
+  LAGHLG +
+  geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 120, label = "A", col="blue") +
+  geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 125, label = "B", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-08"), y = 115, label = "C", col="blue") +
+  geom_vline(xintercept= as.Date("2022-05-19"), col="dark green") + annotate("text", x = as.Date("2022-05-21"), y = 145, label = "D", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-06-01"), col="blue") + annotate("text", x = as.Date("2022-06-02"), y = 130, label = "E", col="blue") +
+  geom_vline(xintercept= as.Date("2022-06-22"), col="black") + annotate("text", x = as.Date("2022-06-19"), y = 105, label = "F+G", col="black") +
+  geom_vline(xintercept= as.Date("2022-06-30"), col="dark green") + annotate("text", x = as.Date("2022-06-29"), y = 40, label = "H", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-07-12"), col="blue") + annotate("text", x = as.Date("2022-07-11"), y = 45, label = "I", col="blue") +
+  geom_vline(xintercept= as.Date("2022-07-19"), col="dark green") + annotate("text", x = as.Date("2022-07-18"), y = 42, label = "J", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-07-26"), col="black") + annotate("text", x = as.Date("2022-07-27"), y = 45, label = "K", col="black") +
+  geom_vline(xintercept= as.Date("2022-07-29"), col="blue") + annotate("text", x = as.Date("2022-07-30"), y = 45, label = "L", col="blue") +
+  geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 43, label = "M", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 57, label = "N", col="black")
+
+#Honing Materials
+LAHoneGT <-
+  LAHoneG+
+  geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 10, label = "A", col="blue") +
+  geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 10, label = "B", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-08"), y = 10, label = "C", col="blue") +
+  geom_vline(xintercept= as.Date("2022-05-19"), col="dark green") + annotate("text", x = as.Date("2022-05-21"), y = 10, label = "D", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-06-01"), col="blue") + annotate("text", x = as.Date("2022-06-02"), y = 10, label = "E", col="blue") +
+  geom_vline(xintercept= as.Date("2022-06-22"), col="black") + annotate("text", x = as.Date("2022-06-19"), y = 10, label = "F+G", col="black") +
+  geom_vline(xintercept= as.Date("2022-06-30"), col="dark green") + annotate("text", x = as.Date("2022-06-29"), y = 12, label = "H", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-07-12"), col="blue") + annotate("text", x = as.Date("2022-07-11"), y = 10, label = "I", col="blue") +
+  geom_vline(xintercept= as.Date("2022-07-19"), col="dark green") + annotate("text", x = as.Date("2022-07-18"), y = 10, label = "J", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-07-26"), col="black") + annotate("text", x = as.Date("2022-07-27"), y = 10, label = "K", col="black") +
+  geom_vline(xintercept= as.Date("2022-07-29"), col="blue") + annotate("text", x = as.Date("2022-07-30"), y = 11, label = "L", col="blue") +
+  geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 13, label = "M", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 17, label = "N", col="black")
+
+#Rate up Materials
+LARateupGT <-
+  LARateupG + 
+  geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 10, label = "A", col="blue") +
+  geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 10, label = "B", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-09"), y = 10, label = "C", col="blue") +
+  geom_vline(xintercept= as.Date("2022-05-19"), col="dark green") + annotate("text", x = as.Date("2022-05-21"), y = 10, label = "D", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-06-01"), col="blue") + annotate("text", x = as.Date("2022-06-02"), y = 10, label = "E", col="blue") +
+  geom_vline(xintercept= as.Date("2022-06-22"), col="black") + annotate("text", x = as.Date("2022-06-19"), y = 10, label = "F+G", col="black") +
+  geom_vline(xintercept= as.Date("2022-06-30"), col="dark green") + annotate("text", x = as.Date("2022-06-29"), y = 12, label = "H", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-07-12"), col="blue") + annotate("text", x = as.Date("2022-07-11"), y = 10, label = "I", col="blue") +
+  geom_vline(xintercept= as.Date("2022-07-19"), col="dark green") + annotate("text", x = as.Date("2022-07-18"), y = 10, label = "J", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-07-26"), col="black") + annotate("text", x = as.Date("2022-07-27"), y = 10, label = "K", col="black") +
+  geom_vline(xintercept= as.Date("2022-07-29"), col="blue") + annotate("text", x = as.Date("2022-07-30"), y = 11, label = "L", col="blue") +
+  geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 13, label = "M", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 17, label = "N", col="black")
+
+#Shards
+LAShardsGT <- 
+  LAShardsG+
+  geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 10, label = "A", col="blue") +
+  geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 10, label = "B", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-08"), y = 10, label = "C", col="blue") +
+  geom_vline(xintercept= as.Date("2022-05-19"), col="dark green") + annotate("text", x = as.Date("2022-05-21"), y = 10, label = "D", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-06-01"), col="blue") + annotate("text", x = as.Date("2022-06-02"), y = 10, label = "E", col="blue") +
+  geom_vline(xintercept= as.Date("2022-06-22"), col="black") + annotate("text", x = as.Date("2022-06-19"), y = 10, label = "F+G", col="black") +
+  geom_vline(xintercept= as.Date("2022-06-30"), col="dark green") + annotate("text", x = as.Date("2022-06-29"), y = 12, label = "H", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-07-12"), col="blue") + annotate("text", x = as.Date("2022-07-11"), y = 10, label = "I", col="blue") +
+  geom_vline(xintercept= as.Date("2022-07-19"), col="dark green") + annotate("text", x = as.Date("2022-07-18"), y = 10, label = "J", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-07-26"), col="black") + annotate("text", x = as.Date("2022-07-27"), y = 10, label = "K", col="black") +
+  geom_vline(xintercept= as.Date("2022-07-29"), col="blue") + annotate("text", x = as.Date("2022-07-30"), y = 11, label = "L", col="blue") +
+  geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 13, label = "M", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 17, label = "N", col="black")
+
+LAGHLGT
+
+LAHoneGT
+
+LARateupGT
+
+LAShardsGT
+```
+
+#Important date explanations
+A: The beginning of them tracking data was linked with the first hyper express mission announcement. This event was mainly an easier way to level characters. 
+B: This was then the event was applied to the game. 
+C: This was the announcement of the May update which introduced the first important boss of the game. Many people felt the need to level to be able to fight the boss. D: This was when the update was applied. This also introduced a new daily boss which gave twice the amount of sell-able GHLs as the old boss. 
+E: The June and July announcement which introduced another important boss. This announcement was paired with anti botting measures so people felt the need to level up while bots were being banned helped spike the price a bit, but getting to the required level was very easy. 
+F: The June update was delayed by a week at this point. 
+G: Another round of Anti botting measures were announced 2 days after the update. 
+H: The June update has arrived with the new boss. 
+I: Hyper express mission with a new character have been confirmed on this date, meaning you can now level a single character to a high level. 
+J: The hyper express mission and the new character arrive in the game along with a pass that can level a character to a high level.
+K: Botters have been found exploiting a dungeon in the game causing serious inflation. They disabled a pass that levels your character to a high level to try and prevent it from becoming worse. 
+L: August and September roadmap announced, new boss and character come along with this (at the end of September) 
+M: They re enabled power passes so you can start a new character at a high level again. 
+N: A bug in the game causes the servers to go down for nearly 24 hours.

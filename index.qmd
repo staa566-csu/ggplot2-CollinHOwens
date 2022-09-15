@@ -18,7 +18,7 @@ library(ggplot2)
 The data I have downloaded is from a set that gets updated daily. I will probably have updated this multiple times before the project is turned in, however the steps taken here should all be the same because I do not clean any outliers in this block of code.
 
 ```{r}
-LostArkData <- read.csv("D:\\GradSchool\\STA 566\\Data\\NAwest Mkt sept 12.csv")
+LostArkData <- read.csv("D:\\GradSchool\\STA 566\\Data\\NAWMkt.csv")
 
 attach(LostArkData)
 length(LostArkData$id)
@@ -66,11 +66,11 @@ LostArkData$id <- 1:length(LostArkData$close)
 length(LostArkData$id)
 
 #The problem observations have been found.
-#22941, 4866, 27433, 27432.
+# 23277, 4914, 27864, 27865
 #I would like to look at each group, but that must be done later
 
 #removing problem observations
-LostArkData <- LostArkData[ !(LostArkData$id %in% c(22941, 4866, 27433, 27432)), ]
+LostArkData <- LostArkData[ !(LostArkData$id %in% c(23277, 4914, 27864, 27865)), ]
 length(LostArkData$id)
 
 LostArkData %>% group_by(Item) %>% summarize(max(open))
@@ -266,9 +266,26 @@ E: The June and July announcement which introduced another important boss. This 
 F: The June update was delayed by a week at this point. 
 G: Another round of Anti botting measures were announced 2 days after the update. 
 H: The June update has arrived with the new boss. 
-I: Hyper express mission with a new character have been confirmed on this date, meaning you can now level a single character to a high level. 
+I: Hyper express mission with a new character announcement, meaning you can now level a single character to a high level. 
 J: The hyper express mission and the new character arrive in the game along with a pass that can level a character to a high level.
 K: Botters have been found exploiting a dungeon in the game causing serious inflation. They disabled a pass that levels your character to a high level to try and prevent it from becoming worse. 
 L: August and September roadmap announced, new boss and character come along with this (at the end of September) 
 M: They re enabled power passes so you can start a new character at a high level again. 
 N: A bug in the game causes the servers to go down for nearly 24 hours.
+
+#New graphs
+These are newer graphs to be able to see more of what is happening with the data
+```{r fig.width= 16}
+LAGHLGBP <- ggplot(data = LAGHLD, mapping = aes(x = Date, y = close, group = Date, color = Item)) + geom_boxplot()
+LAGHLGBP
+
+LAHoneG <- ggplot(data = LAHoneD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + geom_boxplot()
+LAHoneGBP
+
+LARateupG <- ggplot(data = LARateupD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + geom_boxplot()
+LARateupGBP
+
+LAShardsG <- ggplot(data = LAShardsD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + geom_boxplot()
+LAShardsGBP
+```
+

@@ -11,6 +11,8 @@ editor: visual
 library(lubridate)
 library(dplyr)
 library(ggplot2)
+library(ggrepel)
+library(ggthemes)
 ```
 
 #Reading the data and cleaning it up. 
@@ -41,6 +43,18 @@ length(LostArkData$id)
 #renaming first 2 columns
 names(LostArkData)[1] <- "Item"
 names(LostArkData)[2] <- "Date"
+
+#renaming observations to in game names.
+LostArkData$Item[LostArkData$Item == "basic-oreha-fusion-material-2"] <- "Basic Oreha"
+LostArkData$Item[LostArkData$Item == "crystallized-destruction-stone-0"] <- "Destruction Stone"
+LostArkData$Item[LostArkData$Item == "crystallized-guardian-stone-0"] <- "Guardian Stone"
+LostArkData$Item[LostArkData$Item == "great-honor-leapstone-2"] <- "Great Honor Leapstones"
+LostArkData$Item[LostArkData$Item == "honor-shard-pouch-l-3"] <- "Honor Shard L"
+LostArkData$Item[LostArkData$Item == "honor-shard-pouch-m-2"] <- "Honor Shard M"
+LostArkData$Item[LostArkData$Item == "honor-shard-pouch-s-1"] <- "Honor Shard S"
+LostArkData$Item[LostArkData$Item == "solar-blessing-2"] <- "Solar Blessing"
+LostArkData$Item[LostArkData$Item == "solar-grace-1"] <- "Solar Grace"
+LostArkData$Item[LostArkData$Item == "solar-protection-3"] <- "Solar Protection"
 ```
 
 #Inspecting data
@@ -66,11 +80,13 @@ LostArkData$id <- 1:length(LostArkData$close)
 length(LostArkData$id)
 
 #The problem observations have been found.
-# 23277, 4914, 27864, 27865
 #I would like to look at each group, but that must be done later
 
-#removing problem observations
-LostArkData <- LostArkData[ !(LostArkData$id %in% c(23277, 4914, 27864, 27865)), ]
+#removing problem observations. I dont like this method as much, but I could not do a specific date and a price so I chose a method of doing a specific opening price and a high price, this produces the same results as creating an ID and singling them out, but as the data grows, so do the ID's so I would have to look at them every time. This method will at least give a very unique way to identify these extreme outliers. 
+LostArkData <- LostArkData[!(LostArkData$open == 65.00 & LostArkData$high == 14899.00),]
+LostArkData <- LostArkData[!(LostArkData$open == 13.00 & LostArkData$high == 2500.00),]
+LostArkData <- LostArkData[!(LostArkData$open == 187.00 & LostArkData$high == 1823.00),]
+LostArkData <- LostArkData[!(LostArkData$open == 1823.00 & LostArkData$high == 1823.00),]
 length(LostArkData$id)
 
 LostArkData %>% group_by(Item) %>% summarize(max(open))
@@ -117,37 +133,23 @@ Solar blessing, grace, and protection along with the Honor shard pouches are har
 #Separating the items into similar groups to read the graph easier.
 
 #LAGHLD is a data set for Great Honor Leapstones
-LAGHLD <- LostArkData %>% filter(LostArkData$Item %in% c("great-honor-leapstone-2"))
+LAGHLD <- LostArkData %>% filter(LostArkData$Item %in% c("Great Honor Leapstones"))
 
-#LAHoneD is a data set for Oreha, T3 Destruction, T3 Guardians
-LAHoneD <- LostArkData %>% filter(LostArkData$Item %in% c("crystallized-destruction-stone-0","crystallized-guardian-stone-0","basic-oreha-fusion-material-2"))
+#LAOrehaD is a data set for Oreha material.
+LAOrehaD <- LostArkData %>% filter(LostArkData$Item %in% c("Basic Oreha"))
+
+#LADGD T3 Destruction, T3 Guardians
+LADGD <- LostArkData %>% filter(LostArkData$Item %in% c("Destruction Stone","Guardian Stone"))
 
 #LARateupD is a data set for rate up materials 
-LARateupD <- LostArkData %>% filter(LostArkData$Item %in% c("solar-blessing-2","solar-grace-1","solar-protection-3"))
+LARateupD <- LostArkData %>% filter(LostArkData$Item %in% c("Solar Blessing","Solar Grace","Solar Protection"))
 
 #LAShardsD is a data set for the shard packs
-LAShardsD <- LostArkData %>% filter(LostArkData$Item %in% c("honor-shard-pouch-l-3","honor-shard-pouch-m-2","honor-shard-pouch-s-1"))
+LAShardsD <- LostArkData %>% filter(LostArkData$Item %in% c("Honor Shard L","Honor Shard M","Honor Shard S"))
 ```
 
-#Separate graphs 
-
-These graphs are based on the separate data for easier readability. Improvements will be made on these graphs later but this is great because now we will be able to see the data. We can also see any other strange observations, mostly the low prices, with these graphs.
-
-```{r}
-LAGHLG <- ggplot(data = LAGHLD, mapping = aes(x = Date, y = close, color = Item)) + geom_point()
-LAGHLG
-
-LAHoneG <- ggplot(data = LAHoneD, mapping = aes(x = Date, y = close, color = Item)) + geom_point()
-LAHoneG
-
-LARateupG <- ggplot(data = LARateupD, mapping = aes(x = Date, y = close, color = Item)) + geom_point()
-LARateupG
-
-LAShardsG <- ggplot(data = LAShardsD, mapping = aes(x = Date, y = close, color = Item)) + geom_point()
-LAShardsG
-```
-
-#Important dates 
+#Important dates and marking.
+This part is for storing the dates into the graphs. Throughout the project, I had to repeatedly copy and paste the dates but I discovered you can just save them in the GGPlot data itself, so I am going to store it in there to save space in my code chunks. 
 
 With these graphs peaks and valleys it would be important to look at dates that could cause these spikes and drops. One example could be sometime in july the prices of Great Honor Leapstones drops and continues to drop. These are dates after the dataset was created to help try and understand what could attribute to the behavior of these prices. The explanations of these events and how they could have affected prices will be explained below the graph.
 
@@ -186,11 +188,8 @@ Adding these dates as a line in the graph would be great because we would have a
 Blue is going to be associated with announcements, Green when the announcement is actually applied in game, and black will be for negative events that could potentially affect prices such as bot waves, or massive errors in the game.
 
 One important thing to note is for the dates of 5/19(D) and 6/30(H) is that these new bosses give a lot of gold to characters in the game. Your account can fight this boss with multiple characters giving yourself plenty of gold and also introducing that gold to the market.
-
-```{r fig.width= 14}
-#GHL
-LAGHLGT <- 
-  LAGHLG +
+```{r}
+LAGHL <-  ggplot(data = LAGHLD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + 
   geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 120, label = "A", col="blue") +
   geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 125, label = "B", col="dark green") +
   geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-08"), y = 115, label = "C", col="blue") +
@@ -205,9 +204,7 @@ LAGHLGT <-
   geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 43, label = "M", col="dark green") +
   geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 57, label = "N", col="black")
 
-#Honing Materials
-LAHoneGT <-
-  LAHoneG+
+LAOreha <- ggplot(data = LAOrehaD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + 
   geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 10, label = "A", col="blue") +
   geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 10, label = "B", col="dark green") +
   geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-08"), y = 10, label = "C", col="blue") +
@@ -222,9 +219,22 @@ LAHoneGT <-
   geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 13, label = "M", col="dark green") +
   geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 17, label = "N", col="black")
 
-#Rate up Materials
-LARateupGT <-
-  LARateupG + 
+LADG <- ggplot(data = LADGD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + 
+  geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 10, label = "A", col="blue") +
+  geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 10, label = "B", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-08"), y = 10, label = "C", col="blue") +
+  geom_vline(xintercept= as.Date("2022-05-19"), col="dark green") + annotate("text", x = as.Date("2022-05-21"), y = 10, label = "D", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-06-01"), col="blue") + annotate("text", x = as.Date("2022-06-02"), y = 10, label = "E", col="blue") +
+  geom_vline(xintercept= as.Date("2022-06-22"), col="black") + annotate("text", x = as.Date("2022-06-19"), y = 10, label = "F+G", col="black") +
+  geom_vline(xintercept= as.Date("2022-06-30"), col="dark green") + annotate("text", x = as.Date("2022-06-29"), y = 12, label = "H", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-07-12"), col="blue") + annotate("text", x = as.Date("2022-07-11"), y = 10, label = "I", col="blue") +
+  geom_vline(xintercept= as.Date("2022-07-19"), col="dark green") + annotate("text", x = as.Date("2022-07-18"), y = 10, label = "J", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-07-26"), col="black") + annotate("text", x = as.Date("2022-07-27"), y = 10, label = "K", col="black") +
+  geom_vline(xintercept= as.Date("2022-07-29"), col="blue") + annotate("text", x = as.Date("2022-07-30"), y = 11, label = "L", col="blue") +
+  geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 13, label = "M", col="dark green") +
+  geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 17, label = "N", col="black")
+
+LARateup <- ggplot(data = LARateupD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + 
   geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 10, label = "A", col="blue") +
   geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 10, label = "B", col="dark green") +
   geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-09"), y = 10, label = "C", col="blue") +
@@ -239,9 +249,7 @@ LARateupGT <-
   geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 13, label = "M", col="dark green") +
   geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 17, label = "N", col="black")
 
-#Shards
-LAShardsGT <- 
-  LAShardsG+
+LAShards <- ggplot(data = LAShardsD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) +
   geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 10, label = "A", col="blue") +
   geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 10, label = "B", col="dark green") +
   geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-08"), y = 10, label = "C", col="blue") +
@@ -256,13 +264,27 @@ LAShardsGT <-
   geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 13, label = "M", col="dark green") +
   geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 17, label = "N", col="black")
 
-LAGHLGT
+```
 
-LAHoneGT
 
-LARateupGT
+#Separate graphs 
 
-LAShardsGT
+These graphs are based on the separate data for easier readability. Improvements will be made on these graphs later but this is great because now we will be able to see the data. We can also see any other strange observations, mostly the low prices, with these graphs.
+
+```{r  fig.width= 14}
+LAGHLG <- LAGHL + geom_point()
+LAGHLG
+
+LAOrehaG <- LAOreha + geom_point()
+LAOrehaG
+
+LADGDG <- LADG + geom_point()
+
+LARateupG <- LARateup + geom_point()
+LARateupG
+
+LAShardsG <- LAShards + geom_point()
+LAShardsG
 ```
 
 #Important date explanations
@@ -283,114 +305,64 @@ N: A bug in the game causes the servers to go down for nearly 24 hours.
 #New graphs
 These are newer graphs to be able to see more of what is happening with the data
 ```{r fig.width= 16}
-LAGHLGBP <- ggplot(data = LAGHLD, mapping = aes(x = Date, y = close, group = Date, color = Item)) + geom_boxplot()
+LAGHLGBP <- LAGHL + geom_boxplot()
 LAGHLGBP
 
-LAHoneGBP <- ggplot(data = LAHoneD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + geom_boxplot()
-LAHoneGBP
+LAOrehaBP <-  LAOreha + geom_boxplot()
+LAOrehaBP
 
-LARateupGBP <- ggplot(data = LARateupD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + geom_boxplot()
+LADGBP <- LADG + geom_boxplot()
+
+LARateupGBP <- LARateup + geom_boxplot()
 LARateupGBP
 
-LAShardsGBP <- ggplot(data = LAShardsD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + geom_boxplot()
+LAShardsGBP <- LAShards + geom_boxplot()
 LAShardsGBP
-```
-
-
-#Improvements
-These are the graphs I would like to use most, so I am going to apply the dates to this graph but also split Oreha material from the Destruction and Guardian stones due to different starting dates of when the Data was collected. 
-```{r fig.width= 16}
-LAOrehaD <- LostArkData %>% filter(LostArkData$Item %in% c("basic-oreha-fusion-material-2"))
-LADGD <- LostArkData %>% filter(LostArkData$Item %in% c("crystallized-destruction-stone-0","crystallized-guardian-stone-0"))
-
-LAGHLGBP <- ggplot(data = LAGHLD, mapping = aes(x = Date, y = close, group = Date, color = Item)) + geom_boxplot()
-LAGHLGBP <- LAGHLGBP +
-  geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 120, label = "A", col="blue") +
-  geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 125, label = "B", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-08"), y = 115, label = "C", col="blue") +
-  geom_vline(xintercept= as.Date("2022-05-19"), col="dark green") + annotate("text", x = as.Date("2022-05-21"), y = 145, label = "D", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-06-01"), col="blue") + annotate("text", x = as.Date("2022-06-02"), y = 130, label = "E", col="blue") +
-  geom_vline(xintercept= as.Date("2022-06-22"), col="black") + annotate("text", x = as.Date("2022-06-19"), y = 105, label = "F+G", col="black") +
-  geom_vline(xintercept= as.Date("2022-06-30"), col="dark green") + annotate("text", x = as.Date("2022-06-29"), y = 40, label = "H", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-07-12"), col="blue") + annotate("text", x = as.Date("2022-07-11"), y = 45, label = "I", col="blue") +
-  geom_vline(xintercept= as.Date("2022-07-19"), col="dark green") + annotate("text", x = as.Date("2022-07-18"), y = 42, label = "J", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-07-26"), col="black") + annotate("text", x = as.Date("2022-07-27"), y = 45, label = "K", col="black") +
-  geom_vline(xintercept= as.Date("2022-07-29"), col="blue") + annotate("text", x = as.Date("2022-07-30"), y = 45, label = "L", col="blue") +
-  geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 43, label = "M", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 57, label = "N", col="black")
-
-LAOrehaDBP <- ggplot(data = LAOrehaD, mapping = aes(x = Date, y = close, group = Date, color = Item)) + geom_boxplot()
-LAOrehaDBP <- LAOrehaDBP +
-  geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 10, label = "A", col="blue") +
-  geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 10, label = "B", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-08"), y = 10, label = "C", col="blue") +
-  geom_vline(xintercept= as.Date("2022-05-19"), col="dark green") + annotate("text", x = as.Date("2022-05-21"), y = 10, label = "D", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-06-01"), col="blue") + annotate("text", x = as.Date("2022-06-02"), y = 10, label = "E", col="blue") +
-  geom_vline(xintercept= as.Date("2022-06-22"), col="black") + annotate("text", x = as.Date("2022-06-19"), y = 10, label = "F+G", col="black") +
-  geom_vline(xintercept= as.Date("2022-06-30"), col="dark green") + annotate("text", x = as.Date("2022-06-29"), y = 12, label = "H", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-07-12"), col="blue") + annotate("text", x = as.Date("2022-07-11"), y = 10, label = "I", col="blue") +
-  geom_vline(xintercept= as.Date("2022-07-19"), col="dark green") + annotate("text", x = as.Date("2022-07-18"), y = 10, label = "J", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-07-26"), col="black") + annotate("text", x = as.Date("2022-07-27"), y = 10, label = "K", col="black") +
-  geom_vline(xintercept= as.Date("2022-07-29"), col="blue") + annotate("text", x = as.Date("2022-07-30"), y = 11, label = "L", col="blue") +
-  geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 13, label = "M", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 17, label = "N", col="black")
-
-
-LADGGBP <- ggplot(data = LADGD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + geom_boxplot()
-LADGGBP <- LADGGBP +
-  geom_vline(xintercept= as.Date("2022-06-30"), col="dark green") + annotate("text", x = as.Date("2022-06-29"), y = 12, label = "H", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-07-12"), col="blue") + annotate("text", x = as.Date("2022-07-11"), y = 10, label = "I", col="blue") +
-  geom_vline(xintercept= as.Date("2022-07-19"), col="dark green") + annotate("text", x = as.Date("2022-07-18"), y = 10, label = "J", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-07-26"), col="black") + annotate("text", x = as.Date("2022-07-27"), y = 10, label = "K", col="black") +
-  geom_vline(xintercept= as.Date("2022-07-29"), col="blue") + annotate("text", x = as.Date("2022-07-30"), y = 11, label = "L", col="blue") +
-  geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 13, label = "M", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 17, label = "N", col="black")
-
-LARateupGBP <- ggplot(data = LARateupD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + geom_boxplot()
-LARateupGBP <- LARateupGBP +
-  geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 10, label = "A", col="blue") +
-  geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 10, label = "B", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-08"), y = 10, label = "C", col="blue") +
-  geom_vline(xintercept= as.Date("2022-05-19"), col="dark green") + annotate("text", x = as.Date("2022-05-21"), y = 10, label = "D", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-06-01"), col="blue") + annotate("text", x = as.Date("2022-06-02"), y = 10, label = "E", col="blue") +
-  geom_vline(xintercept= as.Date("2022-06-22"), col="black") + annotate("text", x = as.Date("2022-06-19"), y = 10, label = "F+G", col="black") +
-  geom_vline(xintercept= as.Date("2022-06-30"), col="dark green") + annotate("text", x = as.Date("2022-06-29"), y = 12, label = "H", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-07-12"), col="blue") + annotate("text", x = as.Date("2022-07-11"), y = 10, label = "I", col="blue") +
-  geom_vline(xintercept= as.Date("2022-07-19"), col="dark green") + annotate("text", x = as.Date("2022-07-18"), y = 10, label = "J", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-07-26"), col="black") + annotate("text", x = as.Date("2022-07-27"), y = 10, label = "K", col="black") +
-  geom_vline(xintercept= as.Date("2022-07-29"), col="blue") + annotate("text", x = as.Date("2022-07-30"), y = 11, label = "L", col="blue") +
-  geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 13, label = "M", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 17, label = "N", col="black")
-
-
-LAShardsGBP <- ggplot(data = LAShardsD, mapping = aes(x = Date, y = close, group = interaction(Date, Item), color = Item)) + geom_boxplot()
-LAShardsGBP <- LAShardsGBP +
-  geom_vline(xintercept= as.Date("2022-04-25"), col="blue") + annotate("text", x = as.Date("2022-04-23"), y = 10, label = "A", col="blue") +
-  geom_vline(xintercept= as.Date("2022-04-28"), col="dark green") + annotate("text", x = as.Date("2022-04-29"), y = 10, label = "B", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-05-06"), col="blue") + annotate("text", x = as.Date("2022-05-08"), y = 10, label = "C", col="blue") +
-  geom_vline(xintercept= as.Date("2022-05-19"), col="dark green") + annotate("text", x = as.Date("2022-05-21"), y = 10, label = "D", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-06-01"), col="blue") + annotate("text", x = as.Date("2022-06-02"), y = 10, label = "E", col="blue") +
-  geom_vline(xintercept= as.Date("2022-06-22"), col="black") + annotate("text", x = as.Date("2022-06-19"), y = 10, label = "F+G", col="black") +
-  geom_vline(xintercept= as.Date("2022-06-30"), col="dark green") + annotate("text", x = as.Date("2022-06-29"), y = 12, label = "H", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-07-12"), col="blue") + annotate("text", x = as.Date("2022-07-11"), y = 10, label = "I", col="blue") +
-  geom_vline(xintercept= as.Date("2022-07-19"), col="dark green") + annotate("text", x = as.Date("2022-07-18"), y = 10, label = "J", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-07-26"), col="black") + annotate("text", x = as.Date("2022-07-27"), y = 10, label = "K", col="black") +
-  geom_vline(xintercept= as.Date("2022-07-29"), col="blue") + annotate("text", x = as.Date("2022-07-30"), y = 11, label = "L", col="blue") +
-  geom_vline(xintercept= as.Date("2022-08-15"), col="dark green") + annotate("text", x = as.Date("2022-08-17"), y = 13, label = "M", col="dark green") +
-  geom_vline(xintercept= as.Date("2022-09-07"), col="black") + annotate("text", x = as.Date("2022-09-09"), y = 17, label = "N", col="black")
-
 ```
 
 #Direct labeling
+We are adding direct labeling here. For some reason the direct labeling in the notes was not working well, I believe it had to do with the dates and with GGrepel. I found this way of direct labeling but had problems earlier with it labeling multiple observations on the final date. To fix this I just used the last price of that day and it will be around the other observations.
+
 ```{r fig.width= 16}
-LAGHLGBP
+LAGHLGBPF <- LAGHLGBP + geom_text(data = LAGHLD %>% filter(Date == max(Date), close == last(close)), aes(label = Item), nudge_x = -.8, nudge_y = -5, angle = 45, size = 4) + theme(legend.position = "none")
+LAGHLGBPF
 
-LAOrehaDBP
+LADGGBPF <- LADGBP + geom_text(data = LADGD %>% group_by(Item) %>% filter(Date == max(Date), close == last(close)), aes(label = Item), nudge_x = 7.7, nudge_y = 0, size = 4) + theme(legend.position = "none")
+LADGGBPF
 
-LADGGBP
+LAOrehaDBPF <- LAOrehaBP + geom_text(data = LAOrehaD %>% filter(Date == max(Date), close == last(close)), aes(label = Item), nudge_x = 2, nudge_y = 0, angle = 45, size = 5) + theme(legend.position = "none")
+LAOrehaDBPF
 
-LARateupGBP
+LARateupGBPF <- LARateupGBP + geom_text(data = LARateupD %>% group_by(Item) %>% filter(Date == max(Date), close == last(close)), aes(label = Item), nudge_x = 6.5, nudge_y = 0, size = 4) + theme(legend.position = "none")
+LARateupGBPF
 
-LAShardsGBP
+LAShardsGBPF <- LAShardsGBP + geom_text(data = LAShardsD %>% group_by(Item) %>% filter(Date == max(Date), close == last(close)), aes(label = Item), nudge_x = 6.5, nudge_y = 0, size = 4.3) + theme(legend.position = "none")
+LAShardsGBPF
 ```
+#Themes
+
+```{r fig.width= 16}
+LAGHLGBPF <- LAGHLGBPF + scale_x_date() + scale_y_continuous(breaks = seq(0,180,by = 20)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank())
+
+LADGGBPF <- LADGGBPF + theme_minimal() + scale_y_continuous(breaks = seq(0,16,by = 2)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank())
+
+LAOrehaDBPF <- LAOrehaDBPF + theme_minimal() + scale_y_continuous(breaks = seq(8,16,by = 2)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank())
+
+LARateupGBPF <- LARateupGBPF + theme_minimal() + scale_y_continuous(breaks = seq(0,350,by = 20)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank())
+
+LAShardsGBPF <- LAShardsGBPF + theme_minimal() + scale_y_continuous(breaks = seq(0,550,by = 50)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank())
+
+LAGHLGBPF
+
+LAOrehaDBPF
+
+LADGGBPF
+
+LARateupGBPF
+
+LAShardsGBPF
+```
+
+
+
 

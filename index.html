@@ -198,7 +198,7 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">attach</span>(LostArkData)</span>
 <span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(LostArkData<span class="sc">$</span>id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 32266</code></pre>
+<pre><code>[1] 32486</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="co">#converting nonsensical time into real dates and replacing the old ones with a real date.</span></span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>Tconvert <span class="ot">&lt;-</span> timestamp<span class="sc">/</span><span class="dv">1000</span></span>
@@ -215,7 +215,7 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a><span class="co">#checking new length, looks like we have removed 4 observations.</span></span>
 <span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(LostArkData<span class="sc">$</span>id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 32262</code></pre>
+<pre><code>[1] 32482</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="co">#renaming first 2 columns</span></span>
 <span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(LostArkData)[<span class="dv">1</span>] <span class="ot">&lt;-</span> <span class="st">"Item"</span></span>
@@ -244,14 +244,14 @@ Attaching package: 'dplyr'</code></pre>
    Item                   `mean(open)`
    &lt;chr&gt;                         &lt;dbl&gt;
  1 Basic Oreha                    9.56
- 2 Destruction Stone              9.86
+ 2 Destruction Stone              9.91
  3 Great Honor Leapstones        70.3 
- 4 Guardian Stone                 1.92
- 5 Honor Shard L                203.  
- 6 Honor Shard M                128.  
- 7 Honor Shard S                 63.7 
- 8 Solar Blessing                98.5 
- 9 Solar Grace                   38.0 
+ 4 Guardian Stone                 1.91
+ 5 Honor Shard L                206.  
+ 6 Honor Shard M                130.  
+ 7 Honor Shard S                 64.6 
+ 8 Solar Blessing                98.9 
+ 9 Solar Grace                   38.3 
 10 Solar Protection             192.  </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>LostArkData <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Item) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">mean</span>(close))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -260,14 +260,14 @@ Attaching package: 'dplyr'</code></pre>
    Item                   `mean(close)`
    &lt;chr&gt;                          &lt;dbl&gt;
  1 Basic Oreha                     9.57
- 2 Destruction Stone              11.1 
+ 2 Destruction Stone              11.2 
  3 Great Honor Leapstones         70.3 
- 4 Guardian Stone                  1.92
- 5 Honor Shard L                 203.  
- 6 Honor Shard M                 128.  
- 7 Honor Shard S                  63.8 
+ 4 Guardian Stone                  1.91
+ 5 Honor Shard L                 206.  
+ 6 Honor Shard M                 130.  
+ 7 Honor Shard S                  64.6 
  8 Solar Blessing                103.  
- 9 Solar Grace                    38.0 
+ 9 Solar Grace                    38.3 
 10 Solar Protection              192.  </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>LostArkData <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Item) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">min</span>(open))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -311,7 +311,7 @@ Attaching package: 'dplyr'</code></pre>
  2 Destruction Stone               16
  3 Great Honor Leapstones         169
  4 Guardian Stone                   4
- 5 Honor Shard L                  663
+ 5 Honor Shard L                  687
  6 Honor Shard M                  403
  7 Honor Shard S                  366
  8 Solar Blessing                 208
@@ -327,7 +327,7 @@ Attaching package: 'dplyr'</code></pre>
  2 Destruction Stone              2500
  3 Great Honor Leapstones          169
  4 Guardian Stone                    4
- 5 Honor Shard L                   663
+ 5 Honor Shard L                   687
  6 Honor Shard M                   403
  7 Honor Shard S                   366
  8 Solar Blessing                14899
@@ -339,7 +339,7 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>LostArkData<span class="sc">$</span>id <span class="ot">&lt;-</span> <span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(LostArkData<span class="sc">$</span>close)</span>
 <span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(LostArkData<span class="sc">$</span>id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 32262</code></pre>
+<pre><code>[1] 32482</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a><span class="co">#The problem observations have been found.</span></span>
 <span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="co">#I would like to look at each group, but that must be done later</span></span>
@@ -351,7 +351,7 @@ Attaching package: 'dplyr'</code></pre>
 <span id="cb40-8"><a href="#cb40-8" aria-hidden="true" tabindex="-1"></a>LostArkData <span class="ot">&lt;-</span> LostArkData[<span class="sc">!</span>(LostArkData<span class="sc">$</span>open <span class="sc">==</span> <span class="fl">1823.00</span> <span class="sc">&amp;</span> LostArkData<span class="sc">$</span>high <span class="sc">==</span> <span class="fl">1823.00</span>),]</span>
 <span id="cb40-9"><a href="#cb40-9" aria-hidden="true" tabindex="-1"></a><span class="fu">length</span>(LostArkData<span class="sc">$</span>id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] 32258</code></pre>
+<pre><code>[1] 32478</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>LostArkData <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Item) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">max</span>(open))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -362,7 +362,7 @@ Attaching package: 'dplyr'</code></pre>
  2 Destruction Stone               16
  3 Great Honor Leapstones         169
  4 Guardian Stone                   4
- 5 Honor Shard L                  663
+ 5 Honor Shard L                  687
  6 Honor Shard M                  403
  7 Honor Shard S                  366
  8 Solar Blessing                 208
@@ -378,7 +378,7 @@ Attaching package: 'dplyr'</code></pre>
  2 Destruction Stone                16
  3 Great Honor Leapstones          169
  4 Guardian Stone                    4
- 5 Honor Shard L                   663
+ 5 Honor Shard L                   687
  6 Honor Shard M                   403
  7 Honor Shard S                   366
  8 Solar Blessing                  208
@@ -391,15 +391,15 @@ Attaching package: 'dplyr'</code></pre>
    Item                   `mean(open)`
    &lt;chr&gt;                         &lt;dbl&gt;
  1 Basic Oreha                    9.56
- 2 Destruction Stone              9.86
+ 2 Destruction Stone              9.91
  3 Great Honor Leapstones        70.3 
- 4 Guardian Stone                 1.92
- 5 Honor Shard L                203.  
- 6 Honor Shard M                128.  
- 7 Honor Shard S                 63.7 
- 8 Solar Blessing                98.5 
- 9 Solar Grace                   38.0 
-10 Solar Protection             191.  </code></pre>
+ 4 Guardian Stone                 1.91
+ 5 Honor Shard L                206.  
+ 6 Honor Shard M                130.  
+ 7 Honor Shard S                 64.6 
+ 8 Solar Blessing                98.9 
+ 9 Solar Grace                   38.3 
+10 Solar Protection             192.  </code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb48"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>LostArkData <span class="sc">%&gt;%</span> <span class="fu">group_by</span>(Item) <span class="sc">%&gt;%</span> <span class="fu">summarize</span>(<span class="fu">mean</span>(close))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -407,14 +407,14 @@ Attaching package: 'dplyr'</code></pre>
    Item                   `mean(close)`
    &lt;chr&gt;                          &lt;dbl&gt;
  1 Basic Oreha                     9.57
- 2 Destruction Stone               9.86
+ 2 Destruction Stone               9.91
  3 Great Honor Leapstones         70.3 
- 4 Guardian Stone                  1.92
- 5 Honor Shard L                 203.  
- 6 Honor Shard M                 128.  
- 7 Honor Shard S                  63.8 
- 8 Solar Blessing                 98.5 
- 9 Solar Grace                    38.0 
+ 4 Guardian Stone                  1.91
+ 5 Honor Shard L                 206.  
+ 6 Honor Shard M                 130.  
+ 7 Honor Shard S                  64.6 
+ 8 Solar Blessing                 98.9 
+ 9 Solar Grace                    38.3 
 10 Solar Protection              192.  </code></pre>
 </div>
 </div>
@@ -614,15 +614,15 @@ Attaching package: 'dplyr'</code></pre>
 <p>#Themes</p>
 <p>These are the final graphs with the themes applied, the shaded regions and important date explanations are below with the official announcements as well.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>LAGHLGBPF <span class="ot">&lt;-</span> LAGHLGBPF <span class="sc">+</span> <span class="fu">scale_x_date</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">180</span>,<span class="at">by =</span> <span class="dv">20</span>)) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Price in gold"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>, <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>())</span>
+<div class="sourceCode cell-code" id="cb69"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb69-1"><a href="#cb69-1" aria-hidden="true" tabindex="-1"></a>LAGHLGBPF <span class="ot">&lt;-</span> LAGHLGBPF <span class="sc">+</span> <span class="fu">scale_x_date</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">180</span>,<span class="at">by =</span> <span class="dv">20</span>)) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Price in gold"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>, <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Great honor leapstone prices by day"</span>)</span>
 <span id="cb69-2"><a href="#cb69-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>LADGGBPF <span class="ot">&lt;-</span> LADGGBPF <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">20</span>,<span class="at">by =</span> <span class="dv">2</span>)) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Price in gold"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>, <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb69-3"><a href="#cb69-3" aria-hidden="true" tabindex="-1"></a>LADGGBPF <span class="ot">&lt;-</span> LADGGBPF <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">20</span>,<span class="at">by =</span> <span class="dv">2</span>)) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Price in gold"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>, <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Destruction and Guardian stone prices by day"</span>)</span>
 <span id="cb69-4"><a href="#cb69-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>LAOrehaDBPF <span class="ot">&lt;-</span> LAOrehaDBPF <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">8</span>,<span class="dv">16</span>,<span class="at">by =</span> <span class="dv">2</span>)) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Price in gold"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>, <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb69-5"><a href="#cb69-5" aria-hidden="true" tabindex="-1"></a>LAOrehaDBPF <span class="ot">&lt;-</span> LAOrehaDBPF <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">8</span>,<span class="dv">16</span>,<span class="at">by =</span> <span class="dv">2</span>)) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Price in gold"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>, <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Oreha Material prices by day"</span>)</span>
 <span id="cb69-6"><a href="#cb69-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a>LARateupGBPF <span class="ot">&lt;-</span> LARateupGBPF <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">400</span>,<span class="at">by =</span> <span class="dv">20</span>)) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Price in gold"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>, <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb69-7"><a href="#cb69-7" aria-hidden="true" tabindex="-1"></a>LARateupGBPF <span class="ot">&lt;-</span> LARateupGBPF <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">400</span>,<span class="at">by =</span> <span class="dv">20</span>)) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Price in gold"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>, <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Rate up material prices by day"</span>)</span>
 <span id="cb69-8"><a href="#cb69-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a>LAShardsGBPF <span class="ot">&lt;-</span> LAShardsGBPF <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">750</span>,<span class="at">by =</span> <span class="dv">50</span>)) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Price in gold"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>, <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>())</span>
+<span id="cb69-9"><a href="#cb69-9" aria-hidden="true" tabindex="-1"></a>LAShardsGBPF <span class="ot">&lt;-</span> LAShardsGBPF <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">scale_y_continuous</span>(<span class="at">breaks =</span> <span class="fu">seq</span>(<span class="dv">0</span>,<span class="dv">750</span>,<span class="at">by =</span> <span class="dv">50</span>)) <span class="sc">+</span> <span class="fu">ylab</span>(<span class="st">"Price in gold"</span>) <span class="sc">+</span> <span class="fu">theme_minimal</span>() <span class="sc">+</span> <span class="fu">theme</span>(<span class="at">legend.position =</span> <span class="st">"none"</span>, <span class="at">panel.grid.minor.x =</span> <span class="fu">element_blank</span>(), <span class="at">panel.grid.major.x =</span> <span class="fu">element_blank</span>()) <span class="sc">+</span> <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Honor Shard pouch prices by day"</span>)</span>
 <span id="cb69-10"><a href="#cb69-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb69-11"><a href="#cb69-11" aria-hidden="true" tabindex="-1"></a>LAGHLGBPF</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">

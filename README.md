@@ -19,3 +19,7 @@ To obtain it I had to scroll to the top right and create an account for Postman,
 and for Path Variables, for Region I copy and pasted "North America West" (dont add the quotations) and for 
 
 itemID I copy and pasted "basic-oreha-fusion-material-2,crystallized-destruction-stone-0,crystallized-guardian-stone-0,great-honor-leapstone-2,honor-shard-pouch-l-3,honor-shard-pouch-m-2,honor-shard-pouch-s-1,solar-blessing-2,solar-grace-1,solar-protection-3" (also do not add the quotations.)
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+index.qmd has the final code, the GGPlot 2 graphs folder has the 5 final graphs

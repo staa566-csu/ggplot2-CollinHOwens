@@ -305,15 +305,15 @@ LAShardsGBPF
 These are the final graphs with the themes applied, the shaded regions and important date explanations are below with the official announcements as well. 
 
 ```{r fig.width= 16}
-LAGHLGBPF <- LAGHLGBPF + scale_x_date() + scale_y_continuous(breaks = seq(0,180,by = 20)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank())
+LAGHLGBPF <- LAGHLGBPF + scale_x_date() + scale_y_continuous(breaks = seq(0,180,by = 20)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank()) + labs(title = "Great honor leapstone prices by day")
 
-LADGGBPF <- LADGGBPF + theme_minimal() + scale_y_continuous(breaks = seq(0,20,by = 2)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank())
+LADGGBPF <- LADGGBPF + theme_minimal() + scale_y_continuous(breaks = seq(0,20,by = 2)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank()) + labs(title = "Destruction and Guardian stone prices by day")
 
-LAOrehaDBPF <- LAOrehaDBPF + theme_minimal() + scale_y_continuous(breaks = seq(8,16,by = 2)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank())
+LAOrehaDBPF <- LAOrehaDBPF + theme_minimal() + scale_y_continuous(breaks = seq(8,16,by = 2)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank()) + labs(title = "Oreha Material prices by day")
 
-LARateupGBPF <- LARateupGBPF + theme_minimal() + scale_y_continuous(breaks = seq(0,400,by = 20)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank())
+LARateupGBPF <- LARateupGBPF + theme_minimal() + scale_y_continuous(breaks = seq(0,400,by = 20)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank()) + labs(title = "Rate up material prices by day")
 
-LAShardsGBPF <- LAShardsGBPF + theme_minimal() + scale_y_continuous(breaks = seq(0,750,by = 50)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank())
+LAShardsGBPF <- LAShardsGBPF + theme_minimal() + scale_y_continuous(breaks = seq(0,750,by = 50)) + ylab("Price in gold") + theme_minimal() + theme(legend.position = "none", panel.grid.minor.x = element_blank(), panel.grid.major.x = element_blank()) + labs(title = "Honor Shard pouch prices by day")
 
 LAGHLGBPF
 

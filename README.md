@@ -9,6 +9,8 @@ https://i.imgur.com/nyBvpnN.png
 
 Through game updates and announcements, prices have changed a lot. This project's goal is to visualize how these events have influenced the market for these items.
 
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 The data is originally from this website
 
 https://documenter.getpostman.com/view/20821530/UyxbppKr#ea4a2d4c-07b2-470a-abd7-6386f0191f51
